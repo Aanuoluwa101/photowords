@@ -1,16 +1,15 @@
 const group = {
+    "id": "uuid",
     "answer": "clone",
     "difficulty": 1,
     "hint": "a copy of something",
     "images": [
         {
-            "url": "https://example.com/image1.jpg",
             "tag": "cloud",
             "start_index": 0,
             "end_index": 3
         },
         {
-            "url": "https://example.com/image1.jpg",
             "tag": "tone",
             "start_index": 2,
             "end_index": 4
@@ -18,11 +17,17 @@ const group = {
     ]
 }
 
+const user = {
+    "username": "john_doe",
+    "password": "1234",
+    "created_at": "2023-10-01T12:00:00Z"
+}
+
 
 const image = {
-    "id": 2,
+    "id": "uuid string",
     "tag": "cloud",
-    "url": "https://example.com/image1.jpg",
+    "url": "s3-url",
 }
 
 
