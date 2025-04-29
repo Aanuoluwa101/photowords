@@ -1,0 +1,2 @@
+openssl genrsa -out photowords-cloudfront-key.pem 2048
+openssl rsa -pubout -in photowords-cloudfront-key.pem -out photowords-cloudfront-key.pub

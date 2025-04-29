@@ -1,0 +1,15 @@
+{
+    "Version": "2012-10-17",
+      "Statement": [
+        {
+    "Effect" : "Allow",
+          "Action" : [
+            "elasticache:Connect"
+          ],
+          "Resource": [
+                "arn:aws:elasticache:eu-west-2:182399698888:replicationgroup:photowords-redis-cluster",
+                "arn:aws:elasticache:eu-west-2:182399698888:user:photowords-redis"
+            ]
+        }
+      ]
+    }
