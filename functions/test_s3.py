@@ -10,16 +10,6 @@ from botocore.exceptions import ClientError
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('photowords_images')
 
-CLOUDFRONT_DIST = "https://d26z1cm3nkb7ze.cloudfront.net"  # Your CloudFront domain
-PRIVATE_KEY_PATH = "/opt/cloudfront-key.pem"  # Store private key in Lambda layer
-KEY_PAIR_ID = "0a7b2225-1137-49c7-9d6d-70d18e9328ee"  # Your CloudFront key pair ID
-
-
-private_key = """
------BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDIlxIVrmirkblZ
------END PRIVATE KEY-----
-"""
 
 
 # Function to generate a signed CloudFront URL

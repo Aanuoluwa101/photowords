@@ -19,11 +19,11 @@ const Callback = () => {
         return;
       }
 
-      const clientId = "r5n1u8dodck65qnftsc26bb4u";
-      const clientSecret = 'ol6qjprdhfmd5hnvrn48vcl07uak4l4l4d33cfm878ljqcssc08';
+      const clientId = process.env.REACT_APP_CLIENT_ID;
+      const clientSecret = process.env.REACT_APP_CLIENT_SECRET
       const redirectUri = "http://localhost:3000/callback";
-      const tokenUrl = 'https://eu-west-2imng8pdh4.auth.eu-west-2.amazoncognito.com/oauth2/token';
-
+      const tokenUrl = process.env.REACT_APP_TOKEN_URL;
+      
       const basicAuth = btoa(`${clientId}:${clientSecret}`);
 
       try {

@@ -21,6 +21,7 @@ import json
 import datetime
 import rsa
 from botocore.signers import CloudFrontSigner
+import os
 
 
 
@@ -31,7 +32,7 @@ def rsa_signer(message):
 def lambda_handler(event, context):
     url = "https://d26z1cm3nkb7ze.cloudfront.net/images/admin2"
     expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
-    key_id = "KT9L7TG62XJ70"
+    key_id = os.getenv("key_id")
     cf_signer = CloudFrontSigner(key_id, rsa_signer)
     signed_url = cf_signer.generate_presigned_url(url, date_less_than=expires_at)
 

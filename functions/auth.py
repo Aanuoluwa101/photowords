@@ -4,14 +4,15 @@ import base64
 import hashlib
 import hmac
 from botocore.exceptions import ClientError
+import os 
 
 # Initialize the Cognito client
 client = boto3.client('cognito-idp', region_name='eu-west-2')
 
 # Replace these with your actual User Pool ID and Client ID
 USER_POOL_ID = 'eu-west-2_rJYXgTcQp'
-CLIENT_ID = 'r8hr17c6mbsv3unesc4tcb2d5'
-CLIENT_SECRET = 'f4m630ieadorunvqqaka49cr1mt8uotts9obnpnp59igls31989'
+CLIENT_ID = os.getenv('client_id')
+CLIENT_SECRET = os.getenv('client_secret')
 
 
 def get_secret_hash(username):
@@ -23,8 +24,8 @@ def get_secret_hash(username):
 
 def sign_up():
     try:
-        username = 'sabidev'
-        password = 'Ayodeji@123!'
+        username = 'username'
+        password = '1234'
         # Sign up the user using Cognito
         response = client.sign_up(
             ClientId=CLIENT_ID,

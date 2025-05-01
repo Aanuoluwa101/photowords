@@ -1,6 +1,7 @@
 import base64
 import datetime
 import json
+import os
 
 import boto3
 from cryptography.hazmat.backends import default_backend
@@ -12,7 +13,7 @@ ssm_client = boto3.client('ssm')
 
 # CloudFront secret from SSM
 # CF_SIGNED_URL_KEY_PAIR_ID = ssm_client.get_parameter(f"CF_SIGNED_URL_KEY_PAIR_ID")
-CF_SIGNED_URL_KEY_PAIR_ID = "KT9L7TG62XJ70"
+CF_SIGNED_URL_KEY_PAIR_ID = os.getenv("cf_signed_url_key_pair_id")
 CF_SIGNED_URL_PRIVATE_KEY = ssm_client.get_parameter(Name='photowords-cf-signed-url-private-key')['Parameter']['Value']
 
 # key pair id is expected to be str
