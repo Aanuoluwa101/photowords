@@ -2,9 +2,9 @@ import json
 import boto3
 import uuid
 from datetime import datetime
-import pytz
+from zoneinfo import ZoneInfo
 import os
-from utils import validate_images, add_group_to_all_groups
+from utils import validate_images, cache_group_in_redis
 
 
 DYNAMODB_TABLE = os.environ['GROUPS_DYNAMODB_TABLE']
@@ -29,7 +29,7 @@ def lambda_handler(event, context):
 
         validate_images(images)
         group_id = str(uuid.uuid4())
-        created_at = datetime.now(pytz.UTC).isoformat()
+        created_at = datetime.now(tz=ZoneInfo("UTC")).isoformat()
 
         item = {
             'id': group_id,
@@ -49,9 +49,9 @@ def lambda_handler(event, context):
         }
 
         table.put_item(Item=item)
-        add_group_to_all_groups(group_id)
+        cache_group_in_redis(item)
 
-        # save to storage 
+        # save to storage......why
         data = body.copy() 
         data['id'] = group_id
         data['created_at'] = created_at
@@ -64,15 +64,11 @@ def lambda_handler(event, context):
         )
         
         return {
-            'statusCode': 200,
+            'statusCode': 201,
             'body': json.dumps({
                 'message': 'Group saved successfully!',
                 'data': {
-                    'id': group_id,
-                    'answer': answer,
-                    'difficulty': difficulty,
-                    'hint': hint,
-                    'images': images
+                    'id': group_id
                 }
             })
         }
@@ -97,10 +93,38 @@ def lambda_handler(event, context):
 # utils.py
 import boto3
 import os
+import redis
+import json
+from redis_client import ElastiCacheIAMProvider
 
+
+# Redis
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = int(os.environ.get("REDIS_PORT"))
+REDIS_USERNAME = os.environ.get("REDIS_USERNAME")
+REDIS_CACHE_NAME = os.environ.get("REDIS_CACHE_NAME")
+
+creds_provider = ElastiCacheIAMProvider(
+    user=REDIS_USERNAME,
+    cache_name=REDIS_CACHE_NAME,
+    is_serverless=False
+)
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    credential_provider=creds_provider,
+    ssl=True,
+    ssl_cert_reqs="none",
+    decode_responses=True
+)
+
+# dynamodb
 dynamodb = boto3.resource('dynamodb')
 images_table = dynamodb.Table(os.environ['IMAGES_DYNAMODB_TABLE'])
 groups_table = dynamodb.Table(os.environ['GROUPS_DYNAMODB_TABLE'])
+
+# s3
 S3_BUCKET = os.environ['S3_BUCKET']
 s3_client = boto3.client('s3')
 
@@ -141,17 +165,10 @@ def validate_images(images):
         if not check_image_exists_in_s3(tag):
             raise ValueError(f"'{tag}' does not exist in s3")
         
-def add_group_to_all_groups(group_id):
+def cache_group_in_redis(group_data):
     try:
-        groups_table.update_item(
-            Key={'id': 'all_groups'},
-            UpdateExpression="SET #groups = list_append(#groups, :new_group_id)",
-            ExpressionAttributeNames={
-                '#groups': 'groups'
-            },
-            ExpressionAttributeValues={
-                ':new_group_id': [group_id]
-            }
-        )
+        group_id = group_data["id"]
+        redis_client.set(f"group:{group_id}", json.dumps(group_data))     
+        redis_client.sadd("all_groups", group_id)
     except Exception as e:
-        raise Exception(f"Error updating 'all_groups': {str(e)}")
+        raise Exception(f"Error caching group in Redis: {str(e)}")

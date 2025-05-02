@@ -1,6 +1,7 @@
 import json
 import boto3
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 
 s3_client = boto3.client('s3')
@@ -76,7 +77,7 @@ def lambda_handler(event, context):
             # Construct S3 and CloudFront URLs
             s3_url = f"https://{s3_bucket}.s3.amazonaws.com/{object_key}"
             cloudfront_url = f"{CLOUDFRONT_URL_PREFIX}/{object_key}"
-            uploaded_at = datetime.now(datetime.timezone.utc).isoformat()
+            uploaded_at = datetime.now(tz=ZoneInfo("UTC")).isoformat()
 
             # Save image details in DynamoDB
             dynamodb_client.put_item(
