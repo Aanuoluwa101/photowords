@@ -5,6 +5,27 @@ import os
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['GROUPS_DYNAMODB_TABLE'])
 
+# Redis
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = int(os.environ.get("REDIS_PORT"))
+REDIS_USERNAME = os.environ.get("REDIS_USERNAME")
+REDIS_CACHE_NAME = os.environ.get("REDIS_CACHE_NAME")
+
+creds_provider = ElastiCacheIAMProvider(
+    user=REDIS_USERNAME,
+    cache_name=REDIS_CACHE_NAME,
+    is_serverless=False
+)
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    credential_provider=creds_provider,
+    ssl=True,
+    ssl_cert_reqs="none",
+    decode_responses=True
+)
+
 def delete_group_by_id(group_id):
     """
     Delete a group by its ID from DynamoDB.
