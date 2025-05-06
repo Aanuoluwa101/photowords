@@ -45,6 +45,7 @@ def cache_group_in_redis(group_data):
     try:
         group_id = group_data["id"]
         redis_client.set(f"group:{group_id}", json.dumps(group_data))     
+        redis_client.sadd("all_groups", group_id)
     except Exception as e:
         raise Exception(f"Error caching group in Redis: {str(e)}")
 
@@ -82,6 +83,18 @@ def lambda_handler(event, context):
         table.put_item(Item=item)
         cache_group_in_redis(item)
 
+        # # save to storage......why
+        # data = body.copy() 
+        # data['id'] = group_id
+        # data['created_at'] = created_at
+        # object_key = f'groups/{group_id}'
+        # s3_client.put_object(
+        #     Bucket=S3_BUCKET, 
+        #     Key=object_key, 
+        #     Body=json.dumps(data),
+        #     ContentType="application/json"
+        # )
+        
         return {
             'statusCode': 201,
             'body': json.dumps({

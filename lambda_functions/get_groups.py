@@ -2,113 +2,140 @@ import json
 import boto3
 import random
 import os
+import redis
+from redis_client import ElastiCacheIAMProvider
+from decimal import Decimal
+
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['GROUPS_DYNAMODB_TABLE'])
 
-def fetch_all_groups_ids():
+# Redis
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = int(os.environ.get("REDIS_PORT"))
+REDIS_USERNAME = os.environ.get("REDIS_USERNAME")
+REDIS_CACHE_NAME = os.environ.get("REDIS_CACHE_NAME")
+
+creds_provider = ElastiCacheIAMProvider(
+    user=REDIS_USERNAME,
+    cache_name=REDIS_CACHE_NAME,
+    is_serverless=False
+)
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    credential_provider=creds_provider,
+    ssl=True,
+    ssl_cert_reqs="none",
+    decode_responses=True
+)
+
+class DecimalEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, Decimal):
+      return str(obj)
+    return json.JSONEncoder.default(self, obj)
+
+def cache_group(group):
+    group_id = group['id']
+    redis_client.set(f"group:{group_id}", json.dumps(group, cls=DecimalEncoder))
+
+
+def fetch_all_groups():
     try:
-        response = table.get_item(
-            Key={'id': 'all_groups'}
-        )
-        if 'Item' in response:
-            group_ids = response['Item']['groups']
-            return group_ids
-        else:
-            return []
+        keys = [key for key in redis_client.scan_iter("group:*")]
+        if not keys:
+            # Cache miss: load from DynamoDB
+            scan_kwargs = {}
+            all_groups = []
+            done = False
+            start_key = None
+
+            while not done:
+                if start_key:
+                    scan_kwargs['ExclusiveStartKey'] = start_key
+                response = table.scan(**scan_kwargs)
+                for item in response.get('Items', []):
+                    cache_group(item)
+                    all_groups.append(item)
+                start_key = response.get('LastEvaluatedKey', None)
+                done = start_key is None
+
+            return all_groups
+
+        # MGET to fetch all values at once
+        raw_groups = redis_client.mget(keys)
+        groups = [json.loads(group) for group in raw_groups if group]
+        return groups
+
     except Exception as e:
-        raise Exception(f"Error fetching 'all_groups': {str(e)}")
+        raise Exception(f"Error fetching all groups: {str(e)}")
+
 
 def fetch_group_by_id(group_id):
     try:
-        response = table.get_item(
-            Key={'id': group_id}
-        )
+        group_data = redis_client.get(f"group:{group_id}")
+        if group_data:
+            return json.loads(group_data)
+        
+        response = table.get_item(Key={'id': group_id})
         if 'Item' in response:
-            return response['Item']
-        else:
-            return None
+            group = response['Item']
+            cache_group(group)
+            return group
+        return None
     except Exception as e:
         raise Exception(f"Error fetching group by ID: {str(e)}")
 
-def format_group(group):
-    formatted_group = {
-        'id': group['id'],
-        'answer': group['answer'],
-        'difficulty': int(group['difficulty']),
-        'hint': group['hint'],
-        'created_at': group['created_at'],
-        'images': [
-            {
-                'tag': image['tag'],
-                'start_index': int(image['start_index']),
-                'end_index': int(image['end_index']),
-                'position': int(image['position'])
-            } for image in group['images']
-        ]
-    }
-    return formatted_group
 
 def lambda_handler(event, context):
     try:
-        # Parse query parameters
         query_params = event.get('queryStringParameters', {})
-        group_id = count = None 
+        group_id = count = None
         if query_params:
             group_id = query_params.get('id')
             count = query_params.get('count')
 
-        # Fetch the list of group IDs from 'all_groups'
-        group_ids = fetch_all_groups_ids()
-        
-        # Fetch groups based on query parameters
+        all_groups = fetch_all_groups()
+
         if group_id:
             group = fetch_group_by_id(group_id)
             if not group:
                 return {
                     'statusCode': 404,
-                    'body': json.dumps({
-                        'error': f'Group with ID {group_id} not found.'
-                    })
+                    'body': json.dumps({'error': f'Group with ID {group_id} not found.'})
                 }
             return {
                 'statusCode': 200,
-                'body': json.dumps({
-                    'group': format_group(group)
-                })
+                'body': json.dumps(group, cls=DecimalEncoder)
             }
+
         elif count:
             count = int(count)
-            selected_group_ids = group_ids
             try:
-                selected_group_ids = random.sample(group_ids, count)
+                groups = random.sample(all_groups, count)
             except ValueError:
-                pass
+                groups = all_groups  # fallback to all
+            
             return {
                 'statusCode': 200,
-                'body': json.dumps({
-                    'groups': selected_group_ids
-                })
+                'body': json.dumps(groups, cls=DecimalEncoder)
             }
+
         else:
-            if not group_ids:
+            if not all_groups:
                 return {
                     'statusCode': 404,
-                    'body': json.dumps({
-                        'error': 'No groups found.'
-                    })
+                    'body': json.dumps({'error': 'No groups found.'})
                 }
             return {
                 'statusCode': 200,
-                'body': json.dumps({
-                    'groups': group_ids
-                })
+                'body': json.dumps(all_groups, cls=DecimalEncoder)
             }
 
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({
-                'error': str(e)
-            })
+            'body': json.dumps({'error': str(e)})
         }

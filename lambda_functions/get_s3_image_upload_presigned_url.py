@@ -8,6 +8,10 @@ s3_client = boto3.client('s3')
 S3_BUCKET = os.environ['S3_BUCKET']
 EXPIRATION_TIME = os.environ['S3_PRESIGNED_URL_EXPIRATION_TIME']
 
+DYNAMODB_TABLE = os.environ['DYNAMODB_TABLE']
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(DYNAMODB_TABLE)
+
 
 def lambda_handler(event, context):
     try:
@@ -52,6 +56,16 @@ def lambda_handler(event, context):
             error_code = e.response['Error']['Code']
             if error_code != '403' and error_code != '404':
                 raise e
+
+        # check if image exists in DB
+        response = table.get_item(Key={'tag': tag})
+        if 'Item' in response:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    'error': f'An image with the tag "{tag}" is already exists'
+                })
+            }
 
         # generate and return presigned url that will last 5 minutes
         presigned_url = s3_client.generate_presigned_url(
