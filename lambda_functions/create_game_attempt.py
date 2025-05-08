@@ -6,30 +6,77 @@ import boto3
 import random
 import uuid
 import redis
+from decimal import Decimal
+
 
 
 GROUPS_DYNAMODB_TABLE = os.environ['GROUPS_DYNAMODB_TABLE']
 ATTEMPTS_DYNAMODB_TABLE = os.environ['ATTEMPTS_DYNAMODB_TABLE']
 
 dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(GROUPS_DYNAMODB_TABLE)
 
-username = "photowords-redis" 
-cache_name = "photowords-redis-cluster"
-elasticache_endpoint = "master.photowords-redis-cluster.i82bzn.euw2.cache.amazonaws.com" 
-creds_provider = ElastiCacheIAMProvider(user=username, cache_name=cache_name, is_serverless=False)
-redis_client = redis.Redis(host=elasticache_endpoint, port=6379, credential_provider=creds_provider, ssl=True, ssl_cert_reqs="none", decode_responses=True)
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = int(os.environ.get("REDIS_PORT"))
+REDIS_USERNAME = os.environ.get("REDIS_USERNAME")
+REDIS_CACHE_NAME = os.environ.get("REDIS_CACHE_NAME")
 
+creds_provider = ElastiCacheIAMProvider(
+    user=REDIS_USERNAME,
+    cache_name=REDIS_CACHE_NAME,
+    is_serverless=False
+)
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    credential_provider=creds_provider,
+    ssl=True,
+    ssl_cert_reqs="none",
+    decode_responses=True
+)
+
+
+class DecimalEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, Decimal):
+      return str(obj)
+    return json.JSONEncoder.default(self, obj)
+  
+
+def cache_group(group):
+    group_id = group['id']
+    redis_client.set(f"group:{group_id}", json.dumps(group, cls=DecimalEncoder))
 
 def fetch_all_groups():
     try:
-        groups_table = dynamodb.Table(GROUPS_DYNAMODB_TABLE)
-        response = groups_table.get_item(Key={'id': 'all_groups'})
-        if "Item" in response:
-            return response["Item"]["groups"]
-        else:
-            raise ValueError("No groups found")
+        keys = [key for key in redis_client.scan_iter("group:*")]
+        if not keys:
+            # Cache miss: load from DynamoDB
+            scan_kwargs = {}
+            all_groups = []
+            done = False
+            start_key = None
+
+            while not done:
+                if start_key:
+                    scan_kwargs['ExclusiveStartKey'] = start_key
+                response = table.scan(**scan_kwargs)
+                for item in response.get('Items', []):
+                    cache_group(item)
+                    all_groups.append(item)
+                start_key = response.get('LastEvaluatedKey', None)
+                done = start_key is None
+
+            return all_groups
+
+        # MGET to fetch all values at once
+        raw_groups = redis_client.mget(keys)
+        groups = [json.loads(group) for group in raw_groups if group]
+        return groups
+
     except Exception as e:
-        raise e
+        raise Exception(f"Error fetching all groups: {str(e)}")
 
 
 def lambda_handler(event, context): 
@@ -49,22 +96,16 @@ def lambda_handler(event, context):
             "id": attempt_id,
             "username": username, 
             "created_at": created_at,
-            "no_of_questions": len(groups)
+            "no_of_questions": len(groups),
+            "status": "ACTIVE"
         }  
         # save to db
         attempts_table = dynamodb.Table(ATTEMPTS_DYNAMODB_TABLE)
         attempts_table.put_item(Item=attempt)
-
-        attempt.pop("no_of_questions")
         attempt["questions"] = groups
-
+        
         # cache the data
-        cache_data = {
-            **attempt, 
-            "answers": {}, 
-            "last_activity": datetime.now(timezone.utc).isoformat()
-        }  
-        redis_client.set(attempt_id, json.dumps(cache_data))
+        redis_client.set(f"attempt:{attempt_id}", json.dumps(attempt), ex=86400)  # 1 day
         return {
             "statusCode": 201,
             "body": json.dumps({
