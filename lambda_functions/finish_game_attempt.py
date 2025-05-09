@@ -5,7 +5,6 @@ import os
 import boto3
 import redis
 
-# Test body validation, success and cache constitency
 
 # Environment setup
 ATTEMPTS_DYNAMODB_TABLE = os.environ['ATTEMPTS_DYNAMODB_TABLE']
