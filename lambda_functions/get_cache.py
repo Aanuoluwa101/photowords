@@ -8,6 +8,7 @@ REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = int(os.environ.get("REDIS_PORT"))
 REDIS_USERNAME = os.environ.get("REDIS_USERNAME")
 REDIS_CACHE_NAME = os.environ.get("REDIS_CACHE_NAME")
+SUPER_ADMIN_USERNAME = os.environ.get("SUPER_ADMIN_USERNAME")
 
 creds_provider = ElastiCacheIAMProvider(
     user=REDIS_USERNAME,
@@ -29,6 +30,13 @@ def lambda_handler(event, context):
         query = event.get('queryStringParameters') or {}
         target = query.get('target')
         id = query.get('id')
+
+        username = event['requestContext']['authorizer']['claims']["cognito:username"]
+        if username != SUPER_ADMIN_USERNAME:
+            return {
+                "statusCode": 403,
+                "body": json.dumps({"error": "You can not access this resource"})
+            }
 
         if not target:
             return {
