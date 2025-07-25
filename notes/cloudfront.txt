@@ -1,0 +1,19 @@
+1. Create a cloudfront distribution that you will use to access s3
+2. a tag of app=photowords
+3. single app type, origin will be our s3 bucket, no origin path since we'll need to deliver 
+    contents from different folders in s3 through this one distribution
+4. Allow private S3 bucket access to CloudFront - this will update your S3 bucket policy to allow CloudFront to access your S3 bucket.
+
+Behavious: 
+1. images/*: comp
+origin: photowords.s3.eu-west-2.amazonaws.com
+Compress objects automatically
+viewer redirect HTTP to HTTPS 
+Allowed HTTP methods: GET and HEAD
+Restrict viewer access = no
+Cache policy and origin request policy
+
+2. client/* 
+3. groups/*
+
+Set the default root object to client/

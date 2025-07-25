@@ -1,0 +1,3 @@
+An api called photowords-backend 
+Then Resources, then methods in those Resources
+Each resource is defined by a path

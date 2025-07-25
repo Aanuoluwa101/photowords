@@ -1,0 +1,2 @@
+1. Create a user group called Administrators with aws AdministratorAccess
+2. a user called aeafinecode with and added it to the Administrators group

@@ -1,0 +1,5 @@
+We create 4 tables
+1. photowords_game_attempts: key id
+2. photowords_image_groups: key id
+3. photowords_images: key tag 
+4. photowords_users: key username
