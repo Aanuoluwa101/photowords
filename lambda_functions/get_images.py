@@ -1,3 +1,11 @@
+"""
+This function retrieves a list of image tags from a Redis cache 
+for fast access. If the cache is empty, it fetches the tags 
+from a DynamoDB table, stores them in Redis, and then returns them.
+"""
+
+
+
 import json
 import redis
 import os

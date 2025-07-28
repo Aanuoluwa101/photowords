@@ -1,3 +1,11 @@
+"""
+This function generates a presigned S3 URL for uploading an image, 
+ensuring the provided tag (image name) is valid and unique in both S3 and DynamoDB. 
+If the tag is valid and not already used, it returns a presigned URL for secure image upload.
+"""
+
+
+
 import json
 import boto3
 import re

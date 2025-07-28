@@ -1,0 +1,9 @@
+cluster name: photowords-redis-cluster
+node type: cache.t3.micro
+Engine: Redis
+multi A-Z, Auto-failover, cluster mode = disabled
+number of replicas = 1
+location = aws cloud
+
+create subnet group with 3 public subnets 
+and attach this subnet group to elasticache

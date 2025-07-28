@@ -1,3 +1,10 @@
+"""
+This function creates a new group by validating input data, 
+generating a unique group ID, and saving the group to DynamoDB. 
+It also caches the group in Redis for faster future access. 
+"""
+
+
 import json
 import boto3
 import uuid

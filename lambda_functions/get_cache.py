@@ -1,3 +1,11 @@
+"""
+This function allows a super admin to view cached data 
+in Redis. Depending on the query parameters, it can return
+ all cache entries, a specific group by ID, or return an 
+ error for unknown targets. Access is restricted to the 
+ super admin, and responses are returned in JSON format.
+"""
+
 import json
 import redis
 import os

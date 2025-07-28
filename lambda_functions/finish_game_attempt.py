@@ -1,3 +1,11 @@
+"""
+his function marks a game attempt as finished. 
+It takes the attempt ID from the request, validates and processes
+the submitted answers, updates the attempt's status and details in DynamoDB,
+deletes the attempt from Redis cache, and returns a confirmation response or 
+an error if something goes wrong."""
+
+
 from redis_client import ElastiCacheIAMProvider
 import json
 from datetime import datetime, timezone

@@ -1,0 +1,4 @@
+DVPC-PRIVATE-SN-2
+DVPC-PRIVATE-SN-1 
+photowords-lambda-sg
+DVPC

@@ -1,3 +1,12 @@
+"""
+This function allows a super admin to clear cached data 
+in Redis. Depending on the request, it can delete all cache
+ entries, all entries of a specific type (like "group" or "image"),
+ or a single entry by ID. Access is restricted to the super
+ admin, and responses are returned in JSON format.
+"""
+
+
 import json
 import os
 import redis

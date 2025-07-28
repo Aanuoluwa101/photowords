@@ -1,3 +1,12 @@
+"""
+This function registers a newly uploaded image by processing S3 
+event records. For each image, it checks if the image 
+is in the correct S3 folder, ensures the tag is unique in DynamoDB, 
+saves the image details to DynamoDB, and adds the tag to a Redis cache.
+ It returns a success or error message in JSON format.
+"""
+
+
 import json
 import boto3
 import redis

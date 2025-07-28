@@ -1,3 +1,9 @@
 1. create a bucket called photowords 
 2. block all public access
 3. create 3 folders: client, images, groups
+
+event notification under properties
+Event type: Put
+prefix or filters: images/
+destination type: Lambda function
+destination: photowords_register_image_upload 

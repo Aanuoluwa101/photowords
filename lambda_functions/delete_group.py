@@ -1,3 +1,9 @@
+"""
+This function deletes a group by its ID from both DynamoDB and Redis cache. 
+It expects the group ID as a query parameter, 
+removes the group from the database and cache
+"""
+
 import json
 import boto3
 import os

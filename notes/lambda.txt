@@ -1,0 +1,65 @@
+Create a role "photowords-lambda-role" having the following policies:
+1. AWSLambdaBasicExecutionRole: Provides write permissions to CloudWatch Logs.
+2. AWSLambdaVPCAccessExecutionRole: Provides minimum permissions for a Lambda function to execute 
+   while accessing a resource within a VPC - create, describe, delete 
+   network interfaces and write permissions to CloudWatch Logs.
+3. parameter-read-access: to allow getting parameter
+4. photowords-lambda-policy: This policy grants full read and write access to four 
+   specific DynamoDB tables (photowords_users, photowords_images, 
+   photowords_image_groups, and photowords_game_attempts)
+5. photowords-s3-access-policy: Grants permissions to read, write, list, and delete objects in the photowords S3 bucket.
+
+
+All our lambda functions will have this role
+
+
+DYNAMODB_TABLE=photowords_images 
+S3_BUCKET=photowords
+S3_PRESIGNED_URL_EXPIRATION_TIME=300 
+
+General: 
+Handler: lambda_function.lambda_handler
+Runtime: Python 3.9
+Architecture: x86_64
+
+
+1. photowords_get_s3_image_upload_presigned_url
+- Variables: DYNAMODB_TABLE, S3_BUCKET, S3_PRESIGNED_URL_EXPIRATION_TIME
+
+
+2. photowords_get_images
+- Variables: DYNAMODB_TABLE and others 
+- VPC: DVPC, DVPC-PRIVATE-SN-1 and DVPC-PRIVATE-SN-2, photowords-lambda-sg
+- layer: photowords-game-layer 
+
+groups
+- Variables: GROUPS_DYNAMODB_TABLE and others 
+- VPC: DVPC, DVPC-PRIVATE-SN-1 and DVPC-PRIVATE-SN-2, photowords-lambda-sg
+- layer: photowords-game-layer 
+
+3. photowords_get_groups 
+4. photowords_create_group
+5. photowords_delete_group
+
+
+
+play 
+- Variables: GROUPS_DYNAMODB_TABLE, ATTEMPTS_DYNAMODB_TABLE and others 
+- VPC: DVPC, DVPC-PRIVATE-SN-1 and DVPC-PRIVATE-SN-2, photowords-lambda-sg
+- layer: photowords-game-layer 
+
+6. photowords-create-game-attempt
+7. photowords_finish_game_attempt
+
+8. photowords_register_image_upload
+- Variables: DYNAMODB_TABLE, CLOUDFRONT_URL_PREFIX and others 
+- VPC: DVPC, DVPC-PRIVATE-SN-1 and DVPC-PRIVATE-SN-2, photowords-lambda-sg
+- layer: photowords-game-layer 
+
+cache
+- Variables: REDIS_USERNAME and others 
+- VPC: DVPC, DVPC-PRIVATE-SN-1 and DVPC-PRIVATE-SN-2, photowords-lambda-sg
+- layer: photowords-game-layer 
+
+9. photowords-get-cache
+10. photowords-clear-cache

@@ -1,3 +1,13 @@
+"""
+his function retrieves group data, using Redis as a cache and 
+DynamoDB as the main data source. It can return all groups, 
+a specific group by ID, or a random sample of groups based on 
+query parameters. If data is not in Redis, it loads from DynamoDB
+ and caches it for future requests. Responses are always JSON, 
+ and it handles numbers stored as Decimals.
+"""
+
+
 import json
 import boto3
 import random

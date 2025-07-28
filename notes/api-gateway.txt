@@ -1,3 +1,70 @@
 An api called photowords-backend 
+We also have a cognito Authorizer called photowords-admin-auth with token source as Authorization 
+This authorizer's user pool is a user pool we've earlier created
+
 Then Resources, then methods in those Resources
-Each resource is defined by a path
+
+/ => root path 
+To create a new resource, you choose an existing path and your resource name
+resource path = / 
+resource name = get-users  
+
+new resource = /get-users 
+
+Then in the resource, you can create methods 
+
+General: 
+- integration type = lambda
+- lambda proxy integration = True 
+
+/images/* 
+- Authorization = photowords-admin-auth
+
+GET /images 
+- lambda function = photowords_get_images
+
+GET /images/get-upload-url
+- lambda function = photowords_get_s3_image_upload_presigned_url
+- URL query string parameters: tag, required
+
+ 
+
+/groups/*
+- Authorization = photowords-admin-auth
+
+GET /groups
+- lambda function = photowords_get_groups 
+
+POST /groups
+- lambda function = photowords_create_group
+- request validator: validate body 
+- request body: CreateGroup 
+
+DELETE /groups
+- lambda function = photowords_delete_group
+- request validator: Validate query string parameters and headers. id required 
+
+
+
+/play/* 
+- Authorization = None
+
+POST /play
+- lambda function = photowords-create-game-attempt
+- request validator: validate body
+- request body: GameAttemptCreate
+
+POST /play/finish/{game_attempt_id}
+- lambda function = photowords_finish_game_attempt
+- request validator: validate body
+- request body: GameAttemptFinish
+
+
+/cache/* 
+- Authorization = photowords-admin-auth
+GET /cache 
+- lambda function = photowords-get-cache
+
+DELETE /cache 
+- lambda function = photowords-clear-cache
+
