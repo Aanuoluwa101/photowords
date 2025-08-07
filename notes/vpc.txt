@@ -1,4 +1,25 @@
 DVPC-PRIVATE-SN-2
 DVPC-PRIVATE-SN-1 
 photowords-lambda-sg
+photowords-elasticache-sg
 DVPC
+
+
+In photowords-elasticache-sg, there's an inbound rule that allows
+traffic from photowords-lambda-sg on port 6379. That is what 
+makes it possible for our lambda functions that have this 
+security group to reach elasticache
+
+
+Recommendation:
+
+Place all Redis-connected Lambda functions in a private subnet.
+Add VPC endpoints for DynamoDB and S3 to avoid NAT Gateway costs, 
+unless you need internet access for other reasons.
+
+
+VPC-endpoint
+Name
+Choose the service type e.g com.amazonaws.eu-west-2.s3
+choose gateway or interface endpoint
+choose a vpc => our private vpc where our lambda that needs to access s3 is located

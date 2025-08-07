@@ -1,0 +1,21 @@
+Create a user pool 
+sign-in identifier: username
+sign-up required attribute: email 
+return url: http://localhost:3000/callback 
+get your domain
+
+
+ Create an app client
+ - callback url: http://localhost:3000/callback 
+ - set access token expiration to 1 day 
+ - get the client id and client secret
+
+
+
+Choose any attributes that you want to require users to provide.
+ With username alone, you must set email address or phone number 
+ as a required attribute.
+
+- if you're using email only as sign-in identifier, you don't have to set any other sign-up required attributes
+- if you're using username, you have to set at least one sign-up required attribute 
+- if you're using email and username, you have to set a least one sign-up required attribute

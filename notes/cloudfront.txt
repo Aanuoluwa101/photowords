@@ -10,7 +10,7 @@ origin: photowords.s3.eu-west-2.amazonaws.com
 Compress objects automatically
 viewer redirect HTTP to HTTPS 
 Allowed HTTP methods: GET and HEAD
-Restrict viewer access = no
+Restrict viewer access = no..........won't this grant access to groups and other things in our bucket
 Cache policy and origin request policy
 
 2. client/* 

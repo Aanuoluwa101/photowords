@@ -7,3 +7,5 @@ location = aws cloud
 
 create subnet group with 3 public subnets 
 and attach this subnet group to elasticache
+
+it is at this point also that you choose the VPC you want to use
