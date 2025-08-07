@@ -121,7 +121,12 @@ def lambda_handler(event, context):
             "body": json.dumps({
                 "message": "Game attempt successfully created",
                 "game_attempt": attempt
-            })
+            }),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
         }
     except Exception as e: 
         return {

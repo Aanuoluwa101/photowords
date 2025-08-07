@@ -3,6 +3,7 @@ We also have a cognito Authorizer called photowords-admin-auth with token source
 This authorizer's user pool is a user pool we've earlier created
 
 Then Resources, then methods in those Resources
+enable cors
 
 / => root path 
 To create a new resource, you choose an existing path and your resource name
@@ -68,3 +69,8 @@ GET /cache
 DELETE /cache 
 - lambda function = photowords-clear-cache
 
+
+
+
+
+aws apigateway get-export --parameters extensions='integrations' --rest-api-id 1xcn1oc7x7 --stage-name dev --export-type oas30 photowords-api-docs.json

@@ -56,7 +56,12 @@ def lambda_handler(event, context):
         if not game_attempt_json:
             return {
                     'statusCode': 404,
-                    'body': json.dumps({'error': "Game attempt not found"})
+                    'body': json.dumps({'error': "Game attempt not found"}), 
+                    "headers": {
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "POST",
+                        "Access-Control-Allow-Headers": "Content-Type"
+                    }
                 }
 
         game_attempt = json.loads(game_attempt_json)
@@ -67,7 +72,12 @@ def lambda_handler(event, context):
             if answer["question_id"] not in question_ids:
                 return {
                     'statusCode': 404,
-                    'body': json.dumps({'error': f"Question {answer['question_id']} not found in game attempt"})
+                    'body': json.dumps({'error': f"Question {answer['question_id']} not found in game attempt"}), 
+                    "headers": {
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "POST",
+                        "Access-Control-Allow-Headers": "Content-Type"
+                    }
                 }
             questions_answered_count += 1
 
@@ -78,7 +88,7 @@ def lambda_handler(event, context):
                 SET finished_at = :finished_at,
                     answers = :answers,
                     questions_answered_count = :qac,
-                    status = :status,
+                    #status = :status,
                     time_taken = :time_taken,
                     time_requested = :time_requested
             """,
@@ -89,6 +99,9 @@ def lambda_handler(event, context):
                 ':status': 'COMPLETED',
                 ':time_taken': time_taken,
                 ':time_requested': time_requested
+            }, 
+            ExpressionAttributeNames={
+                '#status': 'status'
             }
         )
 
@@ -99,11 +112,21 @@ def lambda_handler(event, context):
             "body": json.dumps({
                 "message": "Game finished",
                 "game_attempt": game_attempt_id
-            })
+            }), 
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
         }
 
     except Exception as e:
         return {
             "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
+            "body": json.dumps({"error": str(e)}), 
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
         }

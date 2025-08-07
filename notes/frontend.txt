@@ -1,0 +1,20 @@
+npx create-react-app photowords-user
+cd photowords-user
+npm install axios
+npm install -D tailwindcss postcss autoprefixer
+npm install -D tailwindcss@3
+npx tailwindcss init -p
+
+
+in tailwind.config add content: ["./src/**/*.{js,jsx,ts,tsx}"]
+repalace index.css with 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+add import './index.css';
+to index.js
+
+incase of web-vitals error 
+npm i web-vitals --save-dev
