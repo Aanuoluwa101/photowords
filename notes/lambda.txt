@@ -11,7 +11,7 @@ Create a role "photowords-lambda-role" having the following policies:
 
 
 All our lambda functions will have this role
-
+remember the timeout of your functions
 
 DYNAMODB_TABLE=photowords_images 
 S3_BUCKET=photowords

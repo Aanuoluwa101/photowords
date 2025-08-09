@@ -14,6 +14,7 @@ const Callback = () => {
     const fetchTokens = async () => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get("code");
+      console.log("Authorization code:", code);
 
       if (!code) {
         setError("Authorization code not found.");

@@ -1,19 +1,23 @@
 // src/auth/PrivateRoute.js
 import React from "react";
-import { Navigate } from "react-router-dom";
-import authConfig from "./authConfig";
+import { Navigate, Outlet } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode';
 
-const PrivateRoute = ({ children }) => {
+// Check if token exists and is not expired
+const isAuthenticated = () => {
   const token = localStorage.getItem("id_token");
+  if (!token) return false;
 
-  if (!token) {
-    // Redirect to Cognito Hosted UI
-    const loginUrl = `${authConfig.authUrl}?client_id=${authConfig.clientId}&response_type=code&scope=openid+profile+email&redirect_uri=${encodeURIComponent(authConfig.redirectUri)}`;
-    window.location.href = loginUrl;
-    return null;
+  try {
+    const { exp } = jwtDecode(token);
+    return exp * 1000 > Date.now(); // expiration is in seconds, Date.now() is ms
+  } catch (err) {
+    return false;
   }
+};
 
-  return children;
+const PrivateRoute = () => {
+  return isAuthenticated() ? <Outlet /> : <Navigate to="/admin/signin" />;
 };
 
 export default PrivateRoute;

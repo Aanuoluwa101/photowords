@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const CLOUD_FRONT_URL = 'https://d26z1cm3nkb7ze.cloudfront.net/images';
-const PLAY_ENDPOINT = 'https://1xcn1oc7x7.execute-api.eu-west-2.amazonaws.com/dev/play';
+const baseUrl = process.env.REACT_APP_API_BASE_URL
+const cloudFrontBaseUrl = process.env.REACT_APP_CLOUD_FRONT_BASE_URL
 
+const CLOUD_FRONT_URL = `${cloudFrontBaseUrl}/images`;
+const PLAY_ENDPOINT = `${baseUrl}/play`;
+  
 export default function UserGame() {
   const [username, setUsername] = useState('');
   const [gameData, setGameData] = useState(null);

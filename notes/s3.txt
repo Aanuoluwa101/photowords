@@ -7,3 +7,26 @@ Event type: Put
 prefix or filters: images/
 destination type: Lambda function
 destination: photowords_register_image_upload 
+
+
+
+const CLOUD_FRONT_URL = 'https://d26z1cm3nkb7ze.cloudfront.net/images';
+const PLAY_ENDPOINT = 'https://1xcn1oc7x7.execute-api.eu-west-2.amazonaws.com/dev/play';
+
+
+
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "GET",
+            "PUT"
+        ],
+        "AllowedOrigins": [
+            "*"
+        ],
+        "ExposeHeaders": []
+    }
+]

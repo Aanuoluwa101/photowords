@@ -30,7 +30,12 @@ def lambda_handler(event, context):
                 'statusCode': 400,
                 'body': json.dumps({
                     'error': 'tag parameter required'
-                })
+                }), 
+                "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
             }
         tag = params.get("tag")
         if not tag:
@@ -38,7 +43,12 @@ def lambda_handler(event, context):
                 'statusCode': 400,
                 'body': json.dumps({
                     'error': 'tag parameter required'
-                })
+                }), 
+                "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
             }
 
         # Validate the tag (must be a single word)
@@ -47,7 +57,12 @@ def lambda_handler(event, context):
                 'statusCode': 400,
                 'body': json.dumps({
                     'error': 'Tag must be a single word containing only letters, numbers, or underscores.'
-                })
+                }), 
+                "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
             }
 
         # check if s3 already contains an image with that tag
@@ -58,7 +73,12 @@ def lambda_handler(event, context):
                 'statusCode': 400,
                 'body': json.dumps({
                     'error': f'An image with the tag "{tag}" already exists.'
-                })
+                }), 
+                "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
             }
         except s3_client.exceptions.ClientError as e:
             error_code = e.response['Error']['Code']
@@ -72,7 +92,12 @@ def lambda_handler(event, context):
                 'statusCode': 400,
                 'body': json.dumps({
                     'error': f'An image with the tag "{tag}" is already exists'
-                })
+                }), 
+                "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
             }
 
         # generate and return presigned url that will last 5 minutes
@@ -87,14 +112,24 @@ def lambda_handler(event, context):
             'body': json.dumps({
                 'message': 'Presigned url successfully generated',
                 'presignedUrl': presigned_url
-            })
+            }), 
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
         }
     except Exception as e:
         return {
             'statusCode': 500,
             'body': json.dumps({
                 'error': str(e)
-            })
+            }),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
         }
 
         

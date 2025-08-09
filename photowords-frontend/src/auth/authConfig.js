@@ -2,9 +2,9 @@
 const authConfig = {
   clientId: process.env.REACT_APP_CLIENT_ID,
   clientSecret: process.env.REACT_APP_CLIENT_SECRET,
-  redirectUri: "http://localhost:3000/callback",
+  redirectUri: process.env.REACT_APP_REDIRECT_URI,
   tokenUrl: process.env.REACT_APP_TOKEN_URL,
-  authUrl: process.env.REACT_APP_AUTH_URL, // Cognito hosted UI
+  domain: process.env.REACT_APP_COGNITO_DOMAIN,
 };
 
 export default authConfig;
