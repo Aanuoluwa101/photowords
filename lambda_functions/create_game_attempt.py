@@ -107,6 +107,7 @@ def lambda_handler(event, context):
             "username": username, 
             "created_at": created_at,
             "no_of_questions": len(groups),
+            # maybe we do this "questions": [group.id for group in groups]
             "status": "ACTIVE"
         }  
         # save to db

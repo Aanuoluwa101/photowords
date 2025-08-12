@@ -22,7 +22,7 @@ S3_BUCKET = os.environ['S3_BUCKET']
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['GROUPS_DYNAMODB_TABLE'])
-s3_client = boto3.client('s3')
+s3 = boto3.client('s3')
 
 
 # Redis

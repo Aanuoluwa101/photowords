@@ -46,7 +46,12 @@ def lambda_handler(event, context):
             'statusCode': 204,
             'body': json.dumps({
                 'message': f'Group {group_id} deleted successfully!'
-            })
+            }), 
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
         }
 
     except Exception as e:

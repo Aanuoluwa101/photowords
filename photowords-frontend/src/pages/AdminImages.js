@@ -19,7 +19,7 @@ const AdminImages = () => {
   const fetchImages = async () => {
     try {
       const token = localStorage.getItem("id_token");
-      // console.log("Fetching images with token:", token);
+      console.log("Fetching images with token:", token);
       const response = await axiosInstance.get(`${baseUrl}/images`, {
         headers: {
           Authorization: token,

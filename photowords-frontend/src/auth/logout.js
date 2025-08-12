@@ -1,3 +1,3 @@
 export function logout() {
-  localStorage.removeItem("token"); // or whatever key you use
+  localStorage.removeItem("id_token"); // or whatever key you use
 }
