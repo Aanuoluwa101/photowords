@@ -1,0 +1,17 @@
+https://aws.amazon.com/blogs/architecture/serverless-architecture-for-a-structured-data-mining-solution/
+https://aws.amazon.com/blogs/publicsector/building-serverless-web-application-architecture-aws-secure-environment-accelerator-asea/
+https://aws.amazon.com/blogs/architecture/its-adopts-microservices-architecture-for-improved-air-travel-search-engine/
+https://aws.amazon.com/blogs/architecture/how-unidays-achieved-aws-region-expansion-in-3-weeks/
+
+
+General 
+https://docs.aws.amazon.com/res/latest/ug/architecture-overview.html
+
+
+cloudfront 
+
+When you add a vpc to a lambda function, you are usually advised to put it in subnets in different availability zones for high availability
+But when you haven't added a vpc, how is high availability ensured. 
+
+
+
