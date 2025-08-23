@@ -22,7 +22,8 @@ This project is less about the game's frontend and more about building a robust,
 
 The application is built on a serverless foundation, ensuring there are no constantly running servers, automatic scaling, and a pay-per-use cost model. The architecture is designed for high availability, security, and performance.
 
-[https://imgur.com/a/I3hu7A5](https://imgur.com/a/I3hu7A5)
+![AWS Architecture](aws-archi.png)
+
 
 ### **Core Components:**
 
